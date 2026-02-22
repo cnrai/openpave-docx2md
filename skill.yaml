@@ -1,0 +1,88 @@
+# OpenPAVE DOCX to Markdown Skill
+# Convert DOCX and DOC files to Markdown format
+
+name: docx2md
+version: 1.0.0
+description: Convert DOCX and DOC files to Markdown format
+
+author:
+  name: cnrai
+  url: https://github.com/cnrai
+
+license: MIT
+homepage: https://github.com/cnrai/openpave-docx2md
+repository: cnrai/openpave-docx2md
+
+# Execution pattern
+pattern: sandbox
+entrypoint: index.js
+
+# Available commands
+commands:
+  - name: convert
+    description: Convert DOCX/DOC file to Markdown
+    args:
+      - <file>
+    options:
+      - -o, --output <file>
+      - --wrap <mode>
+      - --nowrap
+      - --standalone
+      - --extract-media <dir>
+      - --reference
+      - --native
+      - --summary
+
+  - name: info
+    description: Show document information
+    args:
+      - <file>
+    options:
+      - --json
+      - --summary
+
+# No tokens required - this is a local file processing tool
+tokens: {}
+
+# Sandbox permissions
+permissions:
+  fs.read:
+    - "**/*.docx"
+    - "**/*.doc"
+    - /tmp/*
+  fs.write:
+    - tmp/*
+    - /tmp/*
+    - "**/*.md"
+  network: []
+  modules:
+    - fs
+    - path
+  system:
+    - pandoc
+    - unzip
+    - mkdir
+    - rm
+    - which
+
+# Platform compatibility
+platforms:
+  - darwin
+  - linux
+  - win32
+
+engines:
+  node: ">=16.0.0"
+
+# Metadata
+keywords:
+  - docx
+  - doc
+  - markdown
+  - converter
+  - document
+  - word
+  - pandoc
+
+category: document-processing
+icon: "\U0001F4DD"
