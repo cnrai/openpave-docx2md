@@ -86,13 +86,24 @@ function hasPandoc() {
 }
 
 /**
+ * Resolve path properly (sandbox-compatible)
+ */
+function resolvePath(inputPath) {
+  if (path.isAbsolute(inputPath)) {
+    return inputPath;
+  }
+  // Use process.cwd() for relative paths (sandbox path.resolve is broken)
+  return path.join(process.cwd(), inputPath);
+}
+
+/**
  * Convert DOCX to Markdown using pandoc
  */
 function convertWithPandoc(inputPath, options = {}) {
-  const absPath = path.resolve(inputPath);
+  const absPath = resolvePath(inputPath);
   
   if (!fs.existsSync(absPath)) {
-    throw new Error(`File not found: ${inputPath}`);
+    throw new Error(`File not found: ${inputPath} (resolved to: ${absPath})`);
   }
   
   // Build pandoc command
@@ -198,7 +209,7 @@ function parseDocxXml(xmlContent) {
  * Convert DOCX using native XML parsing (fallback method)
  */
 function convertNative(inputPath) {
-  const absPath = path.resolve(inputPath);
+  const absPath = resolvePath(inputPath);
   
   if (!fs.existsSync(absPath)) {
     throw new Error(`File not found: ${inputPath}`);
@@ -271,7 +282,7 @@ function convert(inputPath, options = {}) {
  * Get file info
  */
 function getInfo(inputPath) {
-  const absPath = path.resolve(inputPath);
+  const absPath = resolvePath(inputPath);
   
   if (!fs.existsSync(absPath)) {
     throw new Error(`File not found: ${inputPath}`);
@@ -425,10 +436,14 @@ function main() {
         // Output
         const outputFile = parsed.options.o || parsed.options.output;
         if (outputFile) {
-          // Ensure output directory exists
+          // Ensure output directory exists (use mkdir -p for sandbox compatibility)
           const outputDir = path.dirname(outputFile);
-          if (outputDir && outputDir !== '.' && !fs.existsSync(outputDir)) {
-            fs.mkdirSync(outputDir, { recursive: true });
+          if (outputDir && outputDir !== '.') {
+            try {
+              execCommand(`mkdir -p "${outputDir}"`);
+            } catch (e) {
+              // Directory may already exist, ignore error
+            }
           }
           
           fs.writeFileSync(outputFile, markdown);
@@ -492,9 +507,14 @@ function main() {
           
           const outputFile = parsed.options.o || parsed.options.output;
           if (outputFile) {
+            // Ensure output directory exists (use mkdir -p for sandbox compatibility)
             const outputDir = path.dirname(outputFile);
-            if (outputDir && outputDir !== '.' && !fs.existsSync(outputDir)) {
-              fs.mkdirSync(outputDir, { recursive: true });
+            if (outputDir && outputDir !== '.') {
+              try {
+                execCommand(`mkdir -p "${outputDir}"`);
+              } catch (e) {
+                // Directory may already exist, ignore error
+              }
             }
             fs.writeFileSync(outputFile, markdown);
             

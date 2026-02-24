@@ -2,7 +2,7 @@
 # Convert DOCX and DOC files to Markdown format
 
 name: docx2md
-version: 1.0.0
+version: 1.0.1
 description: Convert DOCX and DOC files to Markdown format
 
 author:
@@ -84,5 +84,5 @@ keywords:
   - word
   - pandoc
 
-category: document-processing
+category: productivity
 icon: "\U0001F4DD"
