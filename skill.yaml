@@ -2,7 +2,7 @@
 # Convert DOCX and DOC files to Markdown format
 
 name: docx2md
-version: 1.0.1
+version: 1.0.2
 description: Convert DOCX and DOC files to Markdown format
 
 author:

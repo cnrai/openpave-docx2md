@@ -59,12 +59,16 @@ function parseArgs() {
  * Execute a shell command and return stdout
  * Uses the sandbox's built-in exec if available, otherwise __ipc__
  */
-function execCommand(cmd) {
+function execCommand(cmd, options = {}) {
   // In sandbox environment, use __ipc__ for system commands
   if (typeof __ipc__ === 'function') {
     const result = __ipc__('system.exec', cmd);
     if (result.err) {
       throw new Error(result.err);
+    }
+    // Check for stderr errors if stdout is empty (command likely failed)
+    if (!result.stdout && result.stderr && !options.ignoreStderr) {
+      throw new Error(result.stderr);
     }
     return result.stdout || '';
   }
@@ -134,6 +138,12 @@ function convertWithPandoc(inputPath, options = {}) {
   }
   
   const result = execCommand(cmd);
+  
+  // Validate result - if empty, something went wrong
+  if (!result || result.trim().length === 0) {
+    throw new Error(`Conversion failed: pandoc returned no output for ${inputPath}. The file may be corrupted.`);
+  }
+  
   return result;
 }
 
